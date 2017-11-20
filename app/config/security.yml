@@ -1,0 +1,51 @@
+# To get started with security, check out the documentation:
+# https://symfony.com/doc/current/security.html
+security:
+    encoders:
+#        Symfony\Component\Security\Core\User\User: plaintext
+        Symfony\Component\Security\Core\User\User: bcrypt
+        AppBundle\Entity\Usuario: bcrypt
+    role_hierarchy:
+        ROLE_ADMIN: [ROLE_USER]
+    # https://symfony.com/doc/current/security.html#b-configuring-how-users-are-loaded
+    providers:
+        chain_provider:
+            chain:
+                providers: [in_memory, user_db]
+#                providers: [in_memory]
+        in_memory:
+            memory:
+                users:
+                    admin: {password: $2y$13$PtyUxnCzEXe3PN06SdGXRu9N8.rQMZx.vLoCaC0S56g6rOPs4kM/y, roles: ROLE_ADMIN} #password: adminpass
+        user_db:
+            entity: { class: AppBundle\Entity\Usuario, property: correo } #con que campo se va a loguear
+
+#    firewalls:
+        # disables authentication for assets and the profiler, adapt it according to your needs
+#        dev:
+#            pattern: ^/(_(profiler|wdt)|css|images|js)/
+#            security: false
+    firewalls:
+        main:
+            pattern: /.*
+            form_login:
+                login_path: login
+                check_path: login
+                default_target_path: /
+            logout:
+                path:   /logout
+                target: /
+            security: true
+            anonymous: true
+#        main:
+#            anonymous: ~
+            # activate different ways to authenticate
+
+            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
+            #http_basic: ~
+
+            # https://symfony.com/doc/current/security/form_login_setup.html
+            #form_login: ~
+    access_control:
+        - { path: /login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: /, roles: [ROLE_ADMIN] }
